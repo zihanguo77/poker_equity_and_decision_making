@@ -1,0 +1,135 @@
+import itertools
+import random
+ranks = "23456789TJQKA"
+suits = "hdcs"
+deck = [rank + suit for rank in ranks for suit in suits]
+def get_ranks(card):
+    return card[0]
+def get_suits(card):
+    return card[1]
+rank_values = {
+    "2": 2,
+    "3": 3,
+    "4": 4,
+    "5": 5,
+    "6": 6,
+    "7": 7,
+    "8": 8,
+    "9": 9,
+    "T": 10,
+    "J": 11,
+    "Q": 12,
+    "K": 13,
+    "A": 14
+}
+
+def hands_evaluator(hands):
+    hands_rank = [get_ranks(hand) for hand in hands]
+    hands_value = [rank_values[_] for _ in hands_rank]
+    hands_suits = [get_suits(hand) for hand in hands ]
+    hands_value.sort(reverse=True) # modified
+
+    # classification
+    is_straight = False
+    for x in range(4):
+        if hands_value[x] == hands_value[x+1] + 1 and hands_value[4] == hands_value[0] - 4: 
+            is_straight = True
+        
+    for x in range (1, 3):
+        if hands_value[0] == 14 and hands_value[0] == hands_value[1] + 9 and hands_value[x] == hands_value[x+1] + 1 and hands_value[4] == hands_value[0] - 12:
+            is_straight = True
+        
+    is_flush = True
+    for z in range(4):
+        if hands_suits[z] != hands_suits[z+1]:
+            is_flush = False
+            
+    is_straightflush = False
+    if is_straight == True and is_flush == True:
+        is_straightflush = True
+        
+    is_royalflush = False
+    if is_straightflush == True and hands_value[0] == 14 and hands_value[1] == 13:
+        is_royalflush = True
+    
+    from collections import Counter
+    counter = Counter(hands_value)
+    counts = sorted(counter.values(), reverse=True)
+      
+    
+    if is_royalflush == True:
+        return "royal flush"
+    elif is_straightflush == True:
+        return "straight flush"
+    elif is_flush == True:
+        return "flush"
+    elif is_straight == True:
+        return "straight"
+    elif counts == [4, 1]:
+        return "four of a kind"
+    elif counts == [3, 2]:
+        return "full house"
+    elif counts == [3, 1, 1]:
+        return "three of a kind"
+    elif counts == [2, 2, 1]:
+        return "two pairs"
+    elif counts == [2, 1, 1, 1]:
+        return "one pair"
+    elif counts == [1, 1, 1, 1, 1]:
+        return "single"
+    
+results = {
+    "royal flush": 0,
+    "straight flush": 0,
+    "four of a kind": 0,
+    "full house": 0,
+    "flush": 0,
+    "straight": 0,
+    "three of a kind": 0,
+    "two pairs": 0,
+    "one pair": 0,
+    "single": 0
+}
+
+num = int(input("Please input a big number to carry out Monte Carlo simulation"))
+
+for i in range (num):
+    hands = random.sample(deck, 5)
+    result = hands_evaluator(hands)
+    results[result] += 1
+print(results)
+
+
+def prob_calc():
+    prob_s = results["single"] / num
+    percentage_s = str(prob_s * 100) + "%"
+    prob_op = results["one pair"] / num
+    percentage_op = str(prob_op * 100) + "%"
+    prob_tp = results["two pairs"] / num
+    percentage_tp = str(prob_tp * 100) + "%"
+    prob_toak = results["three of a kind"] / num
+    percentage_toak = str(prob_toak * 100) + "%"
+    prob_st = results["straight"] / num
+    percentage_st = str(prob_st * 100) + "%"
+    prob_f = results["flush"] / num
+    percentage_f = str(prob_f * 100) + "%"
+    prob_fh = results["full house"] / num
+    percentage_fh = str(prob_fh * 100) + "%"
+    prob_foak = results["four of a kind"] / num
+    percentage_foak = str(prob_foak * 100) + "%"
+    prob_sf = results["straight flush"] / num
+    percentage_sf = str(prob_sf * 100) + "%"
+    prob_rf = results["royal flush"] / num
+    percentage_rf = str(prob_rf * 100) + "%"
+    print(f"The equity for single is {percentage_s}")
+    print(f"The equity for one pair is {percentage_op}")
+    print(f"The equity for two pairs is {percentage_tp}")
+    print(f"The equity for three of a kind is {percentage_toak}")
+    print(f"The equity for straight is {percentage_st}")
+    print(f"The equity for flush is {percentage_f}")
+    print(f"The equity for full house is {percentage_fh}")
+    print(f"The equity for four of a kind is {percentage_foak}")
+    print(f"The equity for straight flush is {percentage_sf}")
+    print(f"The equity for royal flush is {percentage_rf}")
+    
+prob_calc()
